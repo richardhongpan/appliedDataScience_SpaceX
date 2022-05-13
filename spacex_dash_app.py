@@ -17,9 +17,7 @@ for site in (spacex_df['Launch Site'].unique()):
 print(ls)
 max_payload = spacex_df['Payload Mass (kg)'].max()
 min_payload = spacex_df['Payload Mass (kg)'].min()
-  # options=[{'label': 'All Sites', 'value': 'ALL'},{'label': 'site1', 'value': 'site1'}, ...]
 
-#
 # # Create a dash application
 app = dash.Dash(__name__)
 #
