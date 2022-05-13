@@ -30,12 +30,7 @@ app.layout = html.Div(children=[html.H1('SpaceX Launch Records Dashboard',
                                 # TASK 1: Add a dropdown list to enable Launch Site selection
                                 # The default select value is for ALL sites
                                 # dcc.Dropdown(id='site-dropdown',...)
-                                dcc.Dropdown(id='site-dropdown', options=ls,
-                value='ALL',
-                placeholder="place holder here",
-                searchable=True
-                ),
-
+                                dcc.Dropdown(id='site-dropdown', options=ls, value='ALL', placeholder="place holder here", searchable=True),
                                 html.Br(),
 
                                 # TASK 2: Add a pie chart to show the total successful launches count for all sites
@@ -45,22 +40,16 @@ app.layout = html.Div(children=[html.H1('SpaceX Launch Records Dashboard',
 
                                 html.P("Payload range (Kg):"),
                                 # TASK 3: Add a slider to select payload range
-                                dcc.RangeSlider(id='payload-slider',
-                min=0, max=10000, step=1000,
-                marks={0: '0',
-                       100: '100'},
-                # value=[min_value, max_value])
-                value=[2000, 7000]),
+                                dcc.RangeSlider(id='payload-slider', min=0, max=10000, step=1000, marks={0: '0', 100: '100'}, value=[0, 9600]),
+
+                                # TASK 4: Add a scatter chart to show the correlation between payload and launch success
                                 html.Div(dcc.Graph(id='success-payload-scatter-chart')),
                                 ])
 
-                                # TASK 4: Add a scatter chart to show the correlation between payload and launch success
 
 # TASK 2:
 # Add a callback function for `site-dropdown` as input, `success-pie-chart` as output
 
-# TASK 4:
-# Add a callback function for `site-dropdown` and `payload-slider` as inputs, `success-payload-scatter-chart` as output
 pie_data = spacex_df.groupby('Launch Site')["class"].sum().reset_index()
 pie_data2 = spacex_df.groupby('Launch Site')["class"].mean().reset_index()
 print('pie_data:\n')
@@ -79,28 +68,20 @@ def get_pie_chart(entered_site):
     # fig = go.Figure(data=go.Scatter(x=line_data['Month'], y=line_data['ArrDelay'], mode='lines', marker=dict(color='green')))
     if entered_site == 'ALL':
         fig = go.Figure(data=[go.Pie(labels=pie_data['Launch Site'], values=pie_data['class'])])
-        # seems px.pie can't produce a pie chart by itself
-        # fig = px.pie(data=pie_data,
-        # values=[4,5],
-        # names=['Launch Site','&&'],
-        # title='Launches Pie Chart')
         fig.update_layout({
           'plot_bgcolor': '#edfaee',
           'paper_bgcolor': '#edfaee',
         })
     else:
         fig = go.Figure(data=[go.Pie(labels=['success','failure'], values=[success_ttl, failure_ttl])])
-        # fig = px.pie(data=filtered_df,
-        # values='class',
-        # names='successful vs. Failed launches',
-        # title='Launches Pie Chart')
         fig.update_layout({
           'plot_bgcolor': '#edfaee',
           'paper_bgcolor': '#edfaee',
         })
     return fig
 
-
+# TASK 4:
+# Add a callback function for `site-dropdown` and `payload-slider` as inputs, `success-payload-scatter-chart` as output
 @app.callback(
     Output(component_id='success-payload-scatter-chart', component_property='figure'),
     [Input(component_id='site-dropdown', component_property='value'), Input(component_id="payload-slider", component_property="value")])
@@ -113,8 +94,6 @@ def update_output(site, payloadRange):
         fig=px.scatter(spacex_df[spacex_df["Launch Site"]==site][mask], x="Payload Mass (kg)", y="class", color="Booster Version")
     return fig
 
-#     return 'You have selected "{}"'.format(value)
-#
 # Run the app
 if __name__ == '__main__':
     app.run_server()
